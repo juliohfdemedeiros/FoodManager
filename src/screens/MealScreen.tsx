@@ -1,72 +1,106 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, Alert } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { stock } from "../stock";
 
 const MealScreen = ({route: { params }}: any) => {
-  const { name } = params;
-  const recipe = {
-    title: 'sandes de ovo mexido com caneca de café cevada',
-    goals: [
-      {
-        name: 'caneca com café de cevada e leite',
-        ingredients: [
-          {ingredient: 'café de cevada', quantity: 4, protein: 0.22, carbohydrates: 2.324, fats: 0.008},
-          {ingredient: 'leite meio gordo', quantity: 150, protein: 4.8, carbohydrates: 7.2, fats: 2.4},
-          {ingredient: 'açucar branco', quantity: 4, protein: 0, carbohydrates: 4, fats: 0}
-        ]
-      },
-      {
-        name: 'sandes de ovo mexido',
-        ingredients: [
-          {ingredient: 'ovo', quantity: 55, protein: 7, carbohydrates: 0, fats: 6},
-          {ingredient: 'leite meio gordo', quantity: 10, protein: 0.32, carbohydrates: 0.48, fats: 0.16},
-          {ingredient: 'papo seco', quantity: 65, protein: 5.85, carbohydrates: 31.85, fats: 2.275},
-          {ingredient: 'manteiga de vaca', quantity: 2, protein: 0.010, carbohydrates: 0.012, fats: 1.62},
-          {ingredient: 'sal refinado', quantity: 1, protein: 0, carbohydrates: 0, fats: 0},
-          {ingredient: 'pimenta branca', quantity: 1, protein: 0, carbohydrates: 0, fats: 0},
-        ]
-      }
-    ]
-  }; 
-  let total: number;
+  const {regime, suggestions} = params;
+  const [foodStock, setFoodStock] = useState(stock);
 
+  const meal = suggestions.map((meal:any) => {
+
+    let totalProtein: number = 0;
+    let totalCarbohydrates: number = 0;
+    let totalFats: number = 0;
+
+    meal.goals.filter((goal: any) => {
+      goal.ingredients.map(
+      (ingredient:any) => {return ingredient.protein})
+      .reduce((total:number, curr:any) =>{
+        total=0
+        totalProtein += total + 4*curr
+      },0)
+    })
+
+    meal.goals.filter((goal: any) => {
+      goal.ingredients.map(
+      (ingredient:any) => {return ingredient.carbohydrates})
+      .reduce((total:number, curr:any) =>{
+        total=0
+        totalCarbohydrates += total + 4*curr
+      },0)
+    })
+
+    meal.goals.filter((goal: any) => {
+      goal.ingredients.map(
+      (ingredient:any) => {return ingredient.fats})
+      .reduce((total:number, curr:any) =>{
+        total=0
+        totalFats += total + 9*curr
+      },0)
+    })
+    
+    return <View key={meal.uuid} style={{flexDirection: 'column', padding:10}}>
+            <View style={{flexDirection:'row', alignItems:'center', marginBottom: 10}}>
+              <Text style={{fontSize:24, fontWeight: 'bold', color:'black'}}>{ meal.title }</Text>
+            </View>
+            <View style={{marginBottom: 10}}>
+                <Text style={{color:'black'}}>Total Calorias: {Math.round(totalProtein+totalCarbohydrates+totalFats)}</Text>
+                <Text style={{color:'black'}}>Proteinas: {Math.round(totalProtein)} calorias</Text>
+                <Text style={{color:'black'}}>Carbohidratos: {Math.round(totalCarbohydrates)} calorias</Text>
+                <Text style={{color:'black'}}>Gorduras: {Math.round(totalFats)} calorias</Text>
+              </View>
+            <ScrollView style={{backgroundColor:'white', height:340}}>
+              <Text style={{fontWeight:'bold',color:'black', padding:8}}>Objetivos</Text>
+              <View style={{paddingLeft:16}}>{meal.goals.map((goal:any) => {return <Text key={goal.name} style={{color:'black'}}>{'- ' + goal.name}</Text>})}</View>
+              <BouncyCheckbox
+                  size={30}
+                  fillColor="grey"
+                  unfillColor="#FFFFFF"  
+                  text="Utilizar stock"
+                  onPress={(isChecked: boolean) => {
+                      let eatFood = [...foodStock];
+                      meal.goals.filter((goal: any) => {
+                        goal.ingredients.map(
+                        (ingredient:any) => {
+                          eatFood.forEach((food:any)=>{
+                            if(isChecked == true && food.uuid == ingredient.uuid)
+                              food.stock = food.stock - ingredient.quantity
+                          })
+                        })
+                      })
+                      setFoodStock(eatFood);
+                  }}
+                />
+                <BouncyCheckbox
+                  size={30}
+                  fillColor="grey"
+                  unfillColor="#FFFFFF"  
+                  text="Comer fora"
+                  onPress={(isChecked: boolean) => {
+                    if(isChecked == true){
+                      Alert.alert('Comi fora')
+                    }
+                  }}
+                />
+            </ScrollView>
+          </View>
+    })
 
   return (
     <View style={{flex:1}}>
       <View style={{flexDirection:'row', height:60, justifyContent:'space-between'}}>
-        <View style={{flex:1,backgroundColor:'lightgrey', justifyContent:'center', alignItems:'center'}}><Text style={{fontSize:18}}>{name} de hoje</Text></View>
+        <View style={{flex:1, flexDirection:'row', backgroundColor:'lightgrey', justifyContent:'center', alignItems:'center', height:60 }}>
+        <Ionicons name='caret-back' size={20} color='white' />
+          <Text style={{fontSize:18, color:'black', margin:10}}>{'Sugestões ' + regime + ' de hoje'}</Text>
+          <Ionicons name='caret-forward' size={20} color='white' />
+        </View>
       </View>
-      <View style={{flexDirection: 'column'}}>
-        <Text>Proteínas: {   
-        recipe.goals.filter(
-        (goal): any => {goal.ingredients.reduce(
-          (prev, ingredient): any => 
-          {console.log(prev + ingredient.protein)}, 0
-
-        )})}
-    </Text>
-        <Text>Total de carboidratos: {
-        4*(recipe.goals[0].ingredients[0].carbohydrates + 
-        recipe.goals[0].ingredients[1].carbohydrates + 
-        recipe.goals[0].ingredients[2].carbohydrates +
-        recipe.goals[1].ingredients[0].carbohydrates + 
-        recipe.goals[1].ingredients[1].carbohydrates + 
-        recipe.goals[1].ingredients[2].carbohydrates +
-        recipe.goals[1].ingredients[3].carbohydrates + 
-        recipe.goals[1].ingredients[4].carbohydrates + 
-        recipe.goals[1].ingredients[5].carbohydrates 
-        )} cal</Text>
-        <Text>Total de lípidos: {
-        4*(recipe.goals[0].ingredients[0].fats + 
-        recipe.goals[0].ingredients[1].fats + 
-        recipe.goals[0].ingredients[2].fats +
-        recipe.goals[1].ingredients[0].fats + 
-        recipe.goals[1].ingredients[1].fats + 
-        recipe.goals[1].ingredients[2].fats +
-        recipe.goals[1].ingredients[3].fats + 
-        recipe.goals[1].ingredients[4].fats + 
-        recipe.goals[1].ingredients[5].fats 
-        )} cal</Text>
-      </View>
+      <ScrollView>
+      {meal}
+      </ScrollView>
     </View>
   )
 };

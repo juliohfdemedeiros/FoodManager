@@ -1,33 +1,40 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, Text} from 'react-native';
+import { View, StyleSheet, FlatList, Text, Button} from 'react-native';
 import ListMeal from '../components/ListMeal';
+import { regimes } from "../regimes";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const RegimeScreen = ({navigation}: any) => {
-  const regime = [
-    {name: 'Pequeno almoço'},
-    {name: 'Breakfast'},
-    {name: 'Almoço'},
-    {name: 'Lanche'},
-    {name: 'Jantar'},
-    {name: 'Seia'}
-  ];
   return(
-    <View style={styles.container}>
-      <View style={{flexDirection:'row', height:60, justifyContent:'space-between'}}>
-        <View style={{flex:1,backgroundColor:'lightgrey', justifyContent:'center', alignItems:'center'}}><Text style={{fontSize:18}}>Refeições de hoje</Text></View>
+    <View style={{flex:1}}>
+      <View style={styles.time}>
+        <Ionicons name='caret-back' size={20} color='white' />
+        <View style={styles.day}><Text style={{fontSize:18, color:'black'}}>Refeições de hoje</Text></View>
+        <Ionicons name='caret-forward' size={20} color='white' />
       </View>
       <FlatList
-        data={regime} 
-        renderItem={({item}: any) => <ListMeal item={item} navigation={navigation} />} 
+        data={regimes}
+        renderItem={({item}: any) => <ListMeal item={item} navigation={navigation} />}
       />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-      flex: 1,
+  time: { 
+    flexDirection:'row', 
+    backgroundColor:'lightgrey', 
+    justifyContent:'center', 
+    alignItems:'center',
+    height:60
   },
+
+  day: {
+    margin:10,
+    backgroundColor:'lightgrey',
+    justifyContent:'center',
+    alignItems:'center'
+  }
 })
 
 export default RegimeScreen;

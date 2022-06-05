@@ -1,11 +1,22 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { recipes } from "../recipes";
 
 const ListMeal = ({item, navigation}: any) => {
   return (
     <TouchableOpacity 
-      onPress={(): any => 
-        navigation.navigate('MealScreen', {name: item.name})} style={styles.meal} >
+      onPress={(): any =>
+        navigation.navigate('MealScreen',
+        { 
+          suggestions: recipes.filter(
+            (check): any => {
+              if(check.meal == item.name)
+                return check;
+            }),
+          regime: item.name
+        })}
+      style={styles.meal}
+    >
       <View style={styles.mealView}>
           <Text style={styles.mealName}>{item.name}</Text>
       </View>
@@ -19,7 +30,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f8f8',
     borderBottomWidth: 1,
     borderColor: '#eee',
-    height: 100
+    height: 86
   },
   mealView: {
     flex: 1,
